@@ -11,65 +11,79 @@
 
 	define( 'mc_store_givewp', time() ); //1.4.7
 
+	if ( ! defined( 'MES_GIVE_DIR' ) ) {
+		define( 'MES_GIVE_DIR', dirname( __FILE__ ) );
+	}
+
 
 	$inc_files = array(
-		'plugins/wp-async-task/wp-async-task.php'
+		'class-mes-base.php',
+		'plugins/wp-async-task/wp-async-task.php',
+		'API/api.php'
 	);
 
 	foreach( $inc_files as $inc_file ){
 		require_once( $inc_file );
 	}
 
-	class JPB_Async_Task extends WP_Async_Task {
+	class MES_GIVEWP_SYNC extends MES_BASE{
 
-		protected $action = 'save_post';
-
-		/**
-		 * Prepare data for the asynchronous request
-		 *
-		 * @throws Exception If for any reason the request should not happen
-		 *
-		 * @param array $data An array of data sent to the hook
-		 *
-		 * @return array
-		 */
-		protected function prepare_data( $data ) {
-			$post_id = $data[0];
-			return array( 'post_id' => $post_id );
+		function __construct(){
+			add_action( 'init', array( $this, 'addSettingsPage' ) );
+			add_action( 'give_update_payment_status', array( $this, 'listen' ), 10, 3 );
 		}
 
-		/**
-		 * Run the async task action
-		 */
-		protected function run_action() {
-			$post_id = $_POST['post_id'];
-			$post = get_post( $post_id );
-			if ( $post ) {
-				// Assuming $this->action is 'save_post'
-				do_action( "wp_async_$this->action", $post->ID, $post );
+		function addSettingsPage(){
+			add_filter( 'give-settings_get_settings_pages', function($settings) {
+				$settings[] = include MES_GIVE_DIR . '/class-me-settings-tab.php';
+				return $settings;
+			} );
+		}
+
+		function sync( $id ){
+			$mailchimpAPI = MES_MAILCHIMP_API::getInstance();
+
+			$payment = new Give_Payment( $id );
+
+			$customer = array(
+				'id'						=> $mailchimpAPI->getSubscriberHash( $payment->email ),
+				'opt_in_status' => false,
+				'email_address'	=> $payment->email
+			);
+
+			$order = array(
+				'id'										=> strval( $payment->transaction_id ),
+				'order_total'						=> $payment->total,
+				'currency_code'					=> $payment->currency,
+				'processed_at_foreign'	=> $payment->date,
+				'customer'							=> $customer
+			);
+
+			return $mailchimpAPI->createOrder( 'donation', $order );
+		}
+
+		// LISTENS FOR EVENT: GIVEWP UPDATES THE STATUS TO PUBLISHED/COMPLETED
+		function listen( $id, $status, $old_status ){
+			if( $status == 'publish' ){
+				// SYNC ONLY IF THE NEW STATUS IS PUBLISH
+				$this->sync( $id );
 			}
 		}
 
 	}
-	new JPB_Async_Task;
 
-	function really_slow_process( $id ){
-		update_post_meta( $id, 'test', 'samuel' . time() );
-	}
-	add_action( 'wp_async_save_post', 'really_slow_process', 10, 2 );
+	MES_GIVEWP_SYNC::getInstance();
 
-	function mes_test( $id, $status, $old_status ){
+	/*
+	add_action( 'wp_ajax_mes_sync', function(){
 
-		$payment = new Give_Payment( $id );
+		$mesSync = MES_GIVEWP_SYNC::getInstance();
+		$response = $mesSync->sync( 14204 );
 
-		$data = $payment->ID . " " . $payment->total . " " . $payment->key;
+		echo "<pre>";
+		print_r( $response );
+		echo "</pre>";
 
-		//echo "<pre>";
-		//print_r( $data );
-		//echo "</pre>";
-
-		update_post_meta( 14195, 'test', $data );
-
-	}
-
-	add_action( 'give_update_payment_status', 'mes_test', 10, 3 );
+		wp_die();
+	} );
+	*/
