@@ -145,6 +145,8 @@
 					print_r( $payment );
 					echo "</pre>";
 
+					$payment->get_meta( 'currency' );
+
 					break;
 
 			}
