@@ -65,6 +65,9 @@
 		// LISTENS FOR EVENT: GIVEWP UPDATES THE STATUS TO PUBLISHED/COMPLETED
 		function listen( $id, $status, $old_status ){
 			if( $status == 'publish' ){
+
+				echo "Listen from MC plugin";
+
 				// SYNC ONLY IF THE NEW STATUS IS PUBLISH
 				$this->sync( $id );
 			}
