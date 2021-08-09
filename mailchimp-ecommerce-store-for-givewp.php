@@ -31,6 +31,8 @@
 		function __construct(){
 			add_action( 'init', array( $this, 'addSettingsPage' ) );
 			add_action( 'give_update_payment_status', array( $this, 'listen' ), 10, 3 );
+
+			add_action( 'wp_ajax_mes_test', array( $this, 'test' ) );
 		}
 
 		function addSettingsPage(){
@@ -66,11 +68,20 @@
 		function listen( $id, $status, $old_status ){
 			if( $status == 'publish' ){
 
-				echo "Listen from MC plugin";
+				//echo "Listen from MC plugin";
 
 				// SYNC ONLY IF THE NEW STATUS IS PUBLISH
 				$this->sync( $id );
 			}
+		}
+
+		function test(){
+			$id = $_GET['id'];
+			echo $id;
+
+			$this->sync( $id );
+
+			wp_die();
 		}
 
 	}
