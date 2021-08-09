@@ -80,7 +80,7 @@
 			$id = $_GET['id'];
 			echo $id;
 
-			$this->sync( $id );
+			print_r( $this->sync( $id ) );
 
 			wp_die();
 		}
