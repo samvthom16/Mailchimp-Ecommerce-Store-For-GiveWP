@@ -62,6 +62,10 @@
 				'customer'							=> $customer
 			);
 
+			echo "<pre>";
+			print_r( $order );
+			echo "</pre>";
+
 			return $mailchimpAPI->createOrder( 'donation', $order );
 		}
 
@@ -80,7 +84,11 @@
 			$id = $_GET['id'];
 			echo $id;
 
-			print_r( $this->sync( $id ) );
+			$response = $this->sync( $id );
+
+			echo "<pre>";
+			print_r( $response );
+			echo "</pre>";
 
 			wp_die();
 		}
