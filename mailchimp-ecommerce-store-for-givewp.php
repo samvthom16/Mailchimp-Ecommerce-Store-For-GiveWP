@@ -33,6 +33,7 @@
 			add_action( 'give_update_payment_status', array( $this, 'listen' ), 10, 3 );
 
 			add_action( 'wp_ajax_mes_test', array( $this, 'test' ) );
+			add_action( 'wp_ajax_mes_sync_products', array( $this, 'syncProducts' ) );
 		}
 
 		function addSettingsPage(){
@@ -81,6 +82,13 @@
 
 			$this->sync( $id );
 
+			wp_die();
+		}
+
+		function syncProducts(){
+			$mailchimpAPI = MES_MAILCHIMP_API::getInstance();
+			$mailchimpAPI->syncProducts();
+			echo "Products are synced";
 			wp_die();
 		}
 
