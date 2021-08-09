@@ -119,14 +119,35 @@
 		}
 
 		function test(){
-			$id = $_GET['id'];
-			echo $id;
 
-			$response = $this->sync( $id );
+			$action = $_GET[ 'mes_action' ];
 
-			echo "<pre>";
-			print_r( $response );
-			echo "</pre>";
+			switch( $action ){
+
+				case 'sync':
+					$id = $_GET['id'];
+					echo $id;
+
+					$response = $this->sync( $id );
+
+					echo "<pre>";
+					print_r( $response );
+					echo "</pre>";
+					break;
+
+				case 'give':
+					$id = $_GET['id'];
+					echo $id;
+
+					$payment = new Give_Payment( $id );
+
+					echo "<pre>";
+					print_r( $payment );
+					echo "</pre>";
+
+					break;
+
+			}
 
 			wp_die();
 		}
