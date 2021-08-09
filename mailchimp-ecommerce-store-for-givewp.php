@@ -34,6 +34,8 @@
 
 			add_action( 'wp_ajax_mes_test', array( $this, 'test' ) );
 			add_action( 'wp_ajax_mes_sync_products', array( $this, 'syncProducts' ) );
+
+			add_filter( 'give_stripe_prepare_metadata', array( $this, 'give_stripe_prepare_data' ), 10, 3 );
 		}
 
 		function addSettingsPage(){
@@ -43,10 +45,43 @@
 			} );
 		}
 
+		function getMetafields(){
+			return array(
+				'utm_source',			// Google Analytics
+				'utm_campaign',		// Google Analytics
+				'utm_medium',			// Google Analytics
+				'utm_term',				// Google Analytics
+				'mc_cid',					// Mailchimp Campaign ID
+				'mc_eid'					// Mailchimp User ID
+			);
+		}
+
+		function give_stripe_prepare_data( $args, $donation_id, $donation_data ){
+			$params = array();
+			if( is_array( $donation_data ) && isset( $donation_data['post_data'] ) && isset( $donation_data['post_data']['give-current-url'] ) ){
+				$url = $donation_data['post_data']['give-current-url'];
+				$url_components = parse_url( $url );
+				if( isset( $url_components['query'] ) ){
+					parse_str( $url_components['query'], $params );
+					$metafields = $this->getMetafields();
+					foreach( $metafields as $metafield ){
+						$args[ $metafield ] = isset( $params[ $metafield ] ) ? $params[ $metafield ] : "";
+					}
+				}
+			}
+
+			$mailchimpAPI = MES_MAILCHIMP_API::getInstance();
+			$args['mc_sid'] = $mailchimpAPI->getStoreID();
+
+			return $args;
+		}
+
 		function sync( $id ){
 			$mailchimpAPI = MES_MAILCHIMP_API::getInstance();
 
 			$payment = new Give_Payment( $id );
+
+			// if mc_eid retreive user
 
 			$customer = array(
 				'id'						=> $mailchimpAPI->getSubscriberHash( $payment->email ),
@@ -54,12 +89,15 @@
 				'email_address'	=> $payment->email
 			);
 
+			// adding utm tags
+
 			$order = array(
 				'id'										=> strval( $payment->transaction_id ),
 				'order_total'						=> $payment->total,
 				'currency_code'					=> $payment->currency,
 				'processed_at_foreign'	=> $payment->date,
-				'customer'							=> $customer
+				'customer'							=> $customer,
+				'landing_site'					=> bloginfo( 'url' )
 			);
 
 			echo "<pre>";
