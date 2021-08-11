@@ -224,7 +224,7 @@
 				$metafields = $this->parseMetaFieldsFromURL( $url );
 			}
 
-			$extrafields = array( '_give_is_donation_recurring' );
+			$extrafields = array( '_give_is_donation_recurring', '_give_current_url' );
 			foreach( $extrafields as $field ){
 				if( isset( $meta[ $field ] ) ){
 					$metafields[ $field ] = $meta[ $field ];
