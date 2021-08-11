@@ -158,9 +158,12 @@
 			// CREATE MAILCHIMP CUSTOMER FROM PAYMENT AND META INFORMATION
 			$customer = $this->createMailchimpCustomer( $payment );
 
+			// SET ORDER ID FOR PAYMENT
+			$order_id = isset( $payment->transaction_id ) && !empty( $payment->transaction_id ) ? strval( $payment->transaction_id ) : 'order' . $payment->ID;
+
 			// CREATE BASIC ORDER INFORMATION
 			$order = array(
-				'id'										=> strval( $payment->transaction_id ),
+				'id'										=> $order_id,
 				'order_total'						=> $payment->total,
 				'currency_code'					=> $payment->currency,
 				'processed_at_foreign'	=> $payment->date,
