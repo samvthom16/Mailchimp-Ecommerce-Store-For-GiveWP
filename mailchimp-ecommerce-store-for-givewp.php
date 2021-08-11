@@ -208,7 +208,7 @@
 
 					$this->test( $payment );
 					$this->test( $metafields );
-					
+
 					break;
 			}
 
@@ -222,6 +222,13 @@
 			if( isset( $meta['_give_current_url'] ) ){
 				$url = html_entity_decode( $meta['_give_current_url'] );
 				$metafields = $this->parseMetaFieldsFromURL( $url );
+			}
+
+			$extrafields = array( '_give_is_donation_recurring' );
+			foreach( $extrafields as $field ){
+				if( isset( $meta[ $field ] ) ){
+					$metafields[ $field ] = $meta[ $field ];
+				}
 			}
 			return $metafields;
 		}
