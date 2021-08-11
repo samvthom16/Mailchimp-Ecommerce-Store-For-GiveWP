@@ -206,10 +206,9 @@
 					$payment = new Give_Payment( $_GET['id'] );
 					$metafields = $this->getMetaFromPayment( $payment );
 
-					echo "<pre>";
-					print_r( $metafields );
-					echo "</pre>";
-
+					$this->test( $payment );
+					$this->test( $metafields );
+					
 					break;
 			}
 
