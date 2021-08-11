@@ -176,8 +176,13 @@
 			}
 			//$this->test( $order );
 
+			$product_id = 'donation';
+			if( isset( $metafields[ '_give_is_donation_recurring' ] ) && $metafields[ '_give_is_donation_recurring' ] ){
+				$product_id = 'recurring-donation';
+			}
+
 			$mailchimpAPI = MES_MAILCHIMP_API::getInstance();
-			return $mailchimpAPI->createOrder( 'donation', $order );
+			return $mailchimpAPI->createOrder( $product_id, $order );
 		}
 
 		// LISTENS FOR EVENT: GIVEWP UPDATES THE STATUS TO PUBLISHED/COMPLETED
@@ -224,7 +229,7 @@
 				$metafields = $this->parseMetaFieldsFromURL( $url );
 			}
 
-			$extrafields = array( '_give_is_donation_recurring', '_give_current_url' );
+			$extrafields = array( '_give_is_donation_recurring' );
 			foreach( $extrafields as $field ){
 				if( isset( $meta[ $field ] ) ){
 					$metafields[ $field ] = $meta[ $field ];
