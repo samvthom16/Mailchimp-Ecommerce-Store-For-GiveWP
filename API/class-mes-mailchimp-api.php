@@ -69,6 +69,18 @@
 			 return false;
 		}
 
+		function addNameToCustomer( $mc_customer, $customer = array() ){
+			if( isset( $mc_customer->merge_fields ) ){
+				if( isset( $mc_customer->merge_fields->FNAME ) ){
+					$customer[ 'first_name' ] = $mc_customer->merge_fields->FNAME;
+				}
+				if( isset( $mc_customer->merge_fields->LNAME ) ){
+					$customer[ 'last_name' ] = $mc_customer->merge_fields->LNAME;
+				}
+			}
+			return $customer;
+		}
+
 		// GET UNIQUE MEMBER BY ID OR EMAIL ADDRESS FROM THE STORE LIST
 		function getUniqueMember( $id_or_email ){
 
