@@ -145,7 +145,7 @@ class MES_GIVEWP_SYNC extends MES_BASE{
 		$customer = $this->createMailchimpCustomer( $payment );
 
 		// SET ORDER ID FOR PAYMENT
-		$order_id = isset( $payment->transaction_id ) && !empty( $payment->transaction_id ) ? strval( $payment->transaction_id ) : 'order' . $payment->ID;
+		$order_id = isset( $payment->transaction_id ) && !empty( $payment->transaction_id ) ? strval( $payment->transaction_id ) : 'givewp' . $payment->ID;
 
 		// CREATE BASIC ORDER INFORMATION
 		$order = array(
