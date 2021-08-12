@@ -3,7 +3,7 @@
 /*
   Plugin Name: Mailchimp Ecommerce Store For GiveWP
   Plugin URI: https://sputznik.com
-  Description: Tracks all the givewp payments in teh Ecommerce store of Mailchimp
+  Description: Tracks all the givewp payments in the Ecommerce store of Mailchimp
   Author: Samuel Thomas
   Version: 1.1.0
   Author URI: https://sputznik.com
