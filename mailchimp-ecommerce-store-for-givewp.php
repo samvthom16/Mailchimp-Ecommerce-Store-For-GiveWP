@@ -75,9 +75,12 @@ class MES_GIVEWP_SYNC extends MES_BASE{
 	*/
 	function give_stripe_prepare_data( $args, $donation_id, $donation_data ){
 
-		// CHECK IF CURRENT URL EXISTS; IF YES THEN PICK UTM TAGS FROM THE URL
-		if( is_array( $donation_data ) && isset( $donation_data['post_data'] ) && isset( $donation_data['post_data']['give-current-url'] ) ){
-			$args = $this->parseMetaFieldsFromURL( $donation_data['post_data']['give-current-url'], $args );
+		$payment = new Give_Payment( $donation_id );
+		$metafields = $this->getMetaFromPayment( $payment );
+		foreach( $metafields as $slug => $metafield ){
+			if( $metafield ){
+				$args[ $slug ] = $metafield;
+			}
 		}
 
 		// FINALLY ALSO INCLUDE THE STORE ID OF THE MAILCHIMP
@@ -171,6 +174,9 @@ class MES_GIVEWP_SYNC extends MES_BASE{
 		}
 
 		$mailchimpAPI = MES_MAILCHIMP_API::getInstance();
+
+		$this->test( $order );
+
 		return $mailchimpAPI->createOrder( $product_id, $order );
 	}
 
